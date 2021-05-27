@@ -16,6 +16,10 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      content: {
+        type: DataTypes.BLOB,
+        allowNull: true,
+      },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,

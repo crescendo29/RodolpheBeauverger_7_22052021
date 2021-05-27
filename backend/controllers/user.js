@@ -1,16 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
-const { sequelize, User, Post } = require("../models");
+const { sequelize, User } = require("../models");
 
 exports.signup = async (req, res) => {
   const { firstName, lastName, email, password, description, photo, isAdmin } = req.body;
 
   try {
-    User.beforeCreate(async (user) => {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(user.password, salt);
-    });
     const user = await User.create({ firstName, lastName, email, password, description, photo, isAdmin });
 
     return res.status(201).json(user);
@@ -21,14 +17,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
-  }
-  /* User.findOne({ email: req.body.email })
+  User.findOne({ where: { email: req.body.email } })
     .then((user) => {
       if (!user) {
         return res.status(401).json({ error: "Utilisateur non trouvé !" });
@@ -40,13 +29,14 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: "Mot de passe incorrect !" });
           }
           res.status(200).json({
-            uuid: user.uuid,
-            token: jwt.sign({ uuid: user.uuid }, "RANDOM TOKEN", { expiresIn: "24h" }),
+            message: "Utilisateur connecté !",
+            userUuid: user.uuid,
+            token: jwt.sign({ userUuid: user.uuid }, "RANDOM_TOKEN_SECRET", { expiresIn: "24h" }),
           });
         })
         .catch((err) => res.status(500).json({ err }));
     })
-    .catch((err) => res.status(500).json({ err })); */
+    .catch((err) => res.status(500).json({ err }));
 };
 
 exports.getAllUsers = async (req, res) => {
@@ -72,5 +62,41 @@ exports.currentUser = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const uuid = req.params.uuid;
+  try {
+    const user = await User.findOne({ where: { uuid } });
+
+    await user.destroy();
+
+    return res.json({ message: "Utilisateur effacé !" });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  const uuid = req.params.uuid;
+  const { firstName, lastName, email, password, description, photo, isAdmin } = req.body;
+  try {
+    const user = await User.findOne({ where: { uuid } });
+
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.email = email;
+    user.password = password;
+    user.description = description;
+    user.photo = photo;
+
+    await user.save();
+
+    return res.json(user);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Something went wrong" });
   }
 };
