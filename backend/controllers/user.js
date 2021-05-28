@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+
 const { sequelize, User } = require("../models");
 
 exports.signup = async (req, res) => {
