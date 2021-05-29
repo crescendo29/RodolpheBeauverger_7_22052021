@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, DataTypes) => {
-    await queryInterface.createTable("posts", {
+    await queryInterface.createTable("comments", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -13,21 +13,17 @@ module.exports = {
         defaultValue: DataTypes.UUIDV4,
       },
       body: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      content: {
-        type: DataTypes.BLOB,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      /* commentId: {
+      postId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-      }, */
+      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
@@ -39,6 +35,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, DataTypes) => {
-    await queryInterface.dropTable("posts");
+    await queryInterface.dropTable("comments");
   },
 };
